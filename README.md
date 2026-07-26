@@ -15,7 +15,7 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 **https://chaos-simulator-telemetry.vercel.app**
 
-> Note: The frontend is live. The real-time chaos engine (Bun + Socket.io) currently runs only in local development. Full production split-hosting (Vercel + Render/Railway) is documented below.
+> **Current status:** Frontend only is deployed on Vercel. The live site shows the full UI with static/demo service data. The real-time chaos engine (Bun + Socket.io backend) is not hosted in production, so auto-injection, self-healing, live logs, and scenario playback only work when you run the project locally.
 
 ---
 
@@ -76,9 +76,7 @@ Open **http://localhost:3000**. The dashboard connects automatically and shows L
 
 - Frontend is a pure client that talks to the engine over Socket.io.
 - All state (service health, anomaly history, latency samples) lives in the engine process.
-- Production requires two hosts because the engine is a long-running WebSocket server (Vercel cannot host it).
-
-Full production deployment notes (Vercel + Render / Railway / VPS) are in the original detailed guide if needed.
+- The Vercel deployment hosts only the frontend. A full live demo with working chaos engine would require a second host (Render, Railway, Fly.io, or a small VPS) for the long-running WebSocket server.
 
 ---
 
