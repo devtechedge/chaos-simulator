@@ -7,6 +7,9 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.x-fbf0df?logo=bun)](https://bun.sh/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-4.8-black?logo=socket.io)](https://socket.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer%20Motion-12-black)](https://www.framer.com/motion/)
+[![Recharts](https://img.shields.io/badge/Recharts-2-orange)](https://recharts.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ---
