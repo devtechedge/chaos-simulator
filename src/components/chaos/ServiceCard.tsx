@@ -49,19 +49,16 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
 
   const cardVariants = {
     healthy: {
-      backgroundColor: 'rgba(13, 18, 32, 1)',
-      borderColor: 'rgba(255,255,255,0.05)',
-      boxShadow: '0 0 0 rgba(0,0,0,0)',
+      borderColor: 'var(--border)',
+      boxShadow: 'var(--glass-shadow)',
     },
     degraded: {
-      backgroundColor: 'rgba(245, 158, 11, 0.04)',
       borderColor: 'rgba(245, 158, 11, 0.35)',
-      boxShadow: '0 0 35px -10px rgba(245,158,11,0.35)',
+      boxShadow: '0 0 30px -10px rgba(245,158,11,0.3)',
     },
     down: {
-      backgroundColor: 'rgba(239, 68, 68, 0.06)',
-      borderColor: 'rgba(239, 68, 68, 0.45)',
-      boxShadow: '0 0 45px -8px rgba(239,68,68,0.5)',
+      borderColor: 'rgba(239, 68, 68, 0.4)',
+      boxShadow: '0 0 40px -8px rgba(239,68,68,0.4)',
     },
   }
 
@@ -73,15 +70,15 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, type: 'spring', stiffness: 120, damping: 18 }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -3 }}
     >
       <motion.div animate={cardVariants[currentVariant]} transition={{ duration: 0.5 }}>
-        <Card className="border">
-          <CardHeader className="pb-2">
+        <Card className="surface-card rounded-2xl transition-all">
+          <CardHeader className="pb-2 px-5 pt-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <motion.div
-                  className="size-9 rounded-lg flex items-center justify-center"
+                  className="size-9 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: `${color}15` }}
                   animate={
                     isDown
@@ -92,9 +89,9 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
                 >
                   <div style={{ color }}>{icon}</div>
                 </motion.div>
-                <div>
-                  <CardTitle className="text-sm font-semibold text-white">{service.name}</CardTitle>
-                  <CardDescription className="text-[11px] text-gray-500">
+                <div className="min-w-0">
+                  <CardTitle className="text-sm font-semibold text-foreground truncate">{service.name}</CardTitle>
+                  <CardDescription className="text-[11px] text-muted-foreground truncate">
                     {meta?.description || 'Microservice Instance'}
                   </CardDescription>
                 </div>
@@ -102,19 +99,18 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
               <HealthBadge health={service.health} />
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Latency + Sparkline */}
+          <CardContent className="px-5 pb-4 space-y-3">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500 flex items-center gap-1">
-                  <Clock className="size-3" /> Latency (last 30s)
+                <span className="text-muted-foreground flex items-center gap-1 text-[11px] font-medium">
+                  <Clock className="size-3" /> Latency
                 </span>
                 <motion.span
                   key={service.latencyMs}
                   initial={{ opacity: 0.4, y: -2 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`font-mono font-bold ${
-                    isDown ? 'text-red-400' : isDegraded ? 'text-amber-400' : 'text-gray-300'
+                  className={`font-mono tabular-nums font-bold ${
+                    isDown ? 'text-red-500' : isDegraded ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'
                   }`}
                 >
                   {service.isCrashed ? '---' : `${service.latencyMs}ms`}
@@ -133,45 +129,39 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
               />
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-white/3 rounded-md px-2 py-1.5">
-                <div className="text-gray-500">Baseline</div>
-                <div className="font-mono text-gray-300">{service.baselineLatencyMs}ms</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="stat-cell">
+                <div className="text-[10px] text-muted-foreground font-medium">Baseline</div>
+                <div className="font-mono text-xs tabular-nums text-foreground font-semibold">{service.baselineLatencyMs}ms</div>
               </div>
-              <div className="bg-white/3 rounded-md px-2 py-1.5">
-                <div className="text-gray-500">Req/Min</div>
-                <div className="font-mono text-gray-300">
+              <div className="stat-cell">
+                <div className="text-[10px] text-muted-foreground font-medium">Req/Min</div>
+                <div className="font-mono text-xs tabular-nums text-foreground font-semibold">
                   {service.isCrashed ? '0' : service.requestVolume.toLocaleString()}
                 </div>
               </div>
-              <div className="bg-white/3 rounded-md px-2 py-1.5">
-                <div className="text-gray-500">Recovered</div>
-                <div className="font-mono text-emerald-400">{service.outagesPrevented}</div>
+              <div className="stat-cell">
+                <div className="text-[10px] text-muted-foreground font-medium">Recovered</div>
+                <div className="font-mono text-xs tabular-nums text-emerald-600 dark:text-emerald-400 font-bold">{service.outagesPrevented}</div>
               </div>
-              <div className="bg-white/3 rounded-md px-2 py-1.5">
-                <div className="text-gray-500">Anomaly</div>
-                <div className="font-mono text-gray-300">
+              <div className="stat-cell">
+                <div className="text-[10px] text-muted-foreground font-medium">Anomaly</div>
+                <div className="font-mono text-xs tabular-nums text-foreground font-semibold">
                   {service.anomaly ? (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-red-400"
-                    >
+                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500">
                       {service.anomaly.replace('_', ' ')}
                     </motion.span>
                   ) : (
-                    'None'
+                    <span className="text-muted-foreground">None</span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Restart Button */}
             <Button
               size="sm"
               variant="outline"
-              className="w-full gap-1.5 text-xs border-white/10 hover:bg-white/5 transition-all active:scale-[0.97]"
+              className="w-full gap-1.5 text-xs border-border hover:bg-accent transition-all active:scale-[0.97] rounded-xl"
               onClick={onRestart}
               disabled={isHealthy}
             >
@@ -188,36 +178,29 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
 function HealthBadge({ health }: { health: ServiceData['health'] }) {
   if (health === 'Healthy') {
     return (
-      <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30">
+      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/20 text-[10px] font-semibold rounded-lg">
         <Heart className="size-3 mr-1" /> HEALTHY
       </Badge>
     )
   }
   if (health === 'Degraded') {
     return (
-      <motion.div
-        animate={{ scale: [1, 1.05, 1] }}
-        transition={{ duration: 1.2, repeat: Infinity }}
-      >
-        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30">
+      <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
+        <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25 hover:bg-amber-500/20 text-[10px] font-semibold rounded-lg">
           <AlertTriangle className="size-3 mr-1" /> DEGRADED
         </Badge>
       </motion.div>
     )
   }
   return (
-    <motion.div
-      animate={{ scale: [1, 1.08, 1], opacity: [1, 0.7, 1] }}
-      transition={{ duration: 0.8, repeat: Infinity }}
-    >
-      <Badge className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30">
+    <motion.div animate={{ scale: [1, 1.08, 1], opacity: [1, 0.7, 1] }} transition={{ duration: 0.8, repeat: Infinity }}>
+      <Badge className="bg-red-500/15 text-red-500 border-red-500/25 hover:bg-red-500/20 text-[10px] font-semibold rounded-lg">
         <Skull className="size-3 mr-1" /> DOWN
       </Badge>
     </motion.div>
   )
 }
 
-// Animated KPI counter (uses Framer Motion useMotionValue + animate)
 export function KpiDisplay({
   services,
   totalOutagesPrevented,
@@ -237,30 +220,30 @@ export function KpiDisplay({
     {
       label: 'Active Services',
       value: `${activeCount}/${services.length}`,
-      icon: <Server className="size-4 text-emerald-400" />,
+      icon: <Server className="size-4 text-emerald-500" />,
       accentBg: 'bg-emerald-500/10',
-      ringColor: 'shadow-[0_0_20px_-8px_rgba(16,185,129,0.5)]',
+      ringColor: 'shadow-[0_0_20px_-8px_rgba(16,185,129,0.4)]',
     },
     {
       label: 'Outages Prevented',
       value: String(totalOutagesPrevented),
-      icon: <Shield className="size-4 text-orange-400" />,
+      icon: <Shield className="size-4 text-orange-500" />,
       accentBg: 'bg-orange-500/10',
-      ringColor: 'shadow-[0_0_20px_-8px_rgba(249,115,22,0.5)]',
+      ringColor: 'shadow-[0_0_20px_-8px_rgba(249,115,22,0.4)]',
     },
     {
       label: 'Chaos Cycles',
       value: String(simulationCycles),
-      icon: <Activity className="size-4 text-red-400" />,
+      icon: <Activity className="size-4 text-red-500" />,
       accentBg: 'bg-red-500/10',
-      ringColor: 'shadow-[0_0_20px_-8px_rgba(239,68,68,0.5)]',
+      ringColor: 'shadow-[0_0_20px_-8px_rgba(239,68,68,0.4)]',
     },
     {
       label: 'Avg Latency',
       value: services.length > 0 ? `${avgLatency}ms` : '--',
-      icon: <Clock className="size-4 text-amber-400" />,
+      icon: <Clock className="size-4 text-amber-500" />,
       accentBg: 'bg-amber-500/10',
-      ringColor: 'shadow-[0_0_20px_-8px_rgba(245,158,11,0.5)]',
+      ringColor: 'shadow-[0_0_20px_-8px_rgba(245,158,11,0.4)]',
     },
   ]
 
@@ -272,20 +255,20 @@ export function KpiDisplay({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.06 }}
-          className={`rounded-xl border border-white/5 bg-[#0d1220]/80 p-3 ${kpi.ringColor}`}
+          className={`glass-panel rounded-xl p-3 ${kpi.ringColor}`}
         >
           <div className="flex items-center gap-3">
-            <div className={`size-9 rounded-lg flex items-center justify-center ${kpi.accentBg}`}>
+            <div className={`size-9 rounded-xl flex items-center justify-center ${kpi.accentBg} shrink-0`}>
               {kpi.icon}
             </div>
-            <div>
-              <div className="text-[11px] text-gray-500 uppercase tracking-wide">{kpi.label}</div>
+            <div className="min-w-0">
+              <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{kpi.label}</div>
               <motion.div
                 key={kpi.value}
                 initial={{ opacity: 0.5, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.25 }}
-                className="text-lg font-bold text-white font-mono"
+                className="text-lg font-bold text-foreground font-mono tabular-nums"
               >
                 {kpi.value}
               </motion.div>
