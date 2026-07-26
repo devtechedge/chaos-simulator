@@ -159,18 +159,17 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-      <DialogContent className="max-w-3xl bg-[#0d1220] border-white/10 text-gray-100 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl bg-card border-border text-foreground max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Flame className="size-5 text-orange-500" />
             Chaos Scenario Builder
           </DialogTitle>
-          <DialogDescription className="text-gray-500">
+          <DialogDescription className="text-muted-foreground">
             Compose a multi-step chaos scenario. Each step runs after a configurable delay.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Stepper */}
         <div className="flex items-center gap-2 mb-4">
           {['Select Template', 'Compose Steps', 'Review & Launch'].map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-1">
@@ -178,23 +177,22 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                 className={`size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   step >= i
                     ? 'bg-orange-500 text-white'
-                    : 'bg-white/5 text-gray-500 border border-white/10'
+                    : 'bg-accent text-muted-foreground border border-border'
                 }`}
               >
                 {i + 1}
               </div>
               <span
-                className={`text-xs ${step >= i ? 'text-white font-medium' : 'text-gray-500'}`}
+                className={`text-xs ${step >= i ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
               >
                 {label}
               </span>
-              {i < 2 && <ChevronRight className="size-3 text-gray-600 ml-auto" />}
+              {i < 2 && <ChevronRight className="size-3 text-muted-foreground ml-auto" />}
             </div>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
-          {/* STEP 0: Template selection */}
           {step === 0 && (
             <motion.div
               key="step0"
@@ -209,15 +207,15 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                     key={preset.name}
                     whileHover={{ y: -2 }}
                     onClick={() => applyPreset(i)}
-                    className="text-left p-4 rounded-lg border border-white/10 bg-white/3 hover:bg-white/5 hover:border-orange-500/30 transition-all"
+                    className="text-left p-4 rounded-xl border border-border bg-secondary/40 hover:bg-secondary/70 hover:border-primary/30 transition-all"
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-semibold text-white">{preset.name}</span>
-                      <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">
+                      <span className="text-sm font-semibold text-foreground">{preset.name}</span>
+                      <Badge className="bg-orange-500/15 text-orange-500 border-orange-500/30">
                         {preset.steps.length} steps
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">{preset.description}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{preset.description}</p>
                     <div className="flex gap-1 flex-wrap">
                       {preset.steps.map((s, j) => (
                         <span
@@ -237,14 +235,13 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
               </div>
               <button
                 onClick={() => setStep(1)}
-                className="w-full p-3 rounded-lg border border-dashed border-white/10 hover:border-orange-500/30 text-xs text-gray-500 hover:text-orange-400 transition-all"
+                className="w-full p-3 rounded-xl border border-dashed border-border hover:border-primary/30 text-xs text-muted-foreground hover:text-primary transition-all"
               >
                 + Start from scratch instead
               </button>
             </motion.div>
           )}
 
-          {/* STEP 1: Compose steps */}
           {step === 1 && (
             <motion.div
               key="step1"
@@ -254,22 +251,22 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
               className="space-y-3"
             >
               <div className="space-y-1.5">
-                <label className="text-xs text-gray-400">Scenario name</label>
+                <label className="text-xs text-muted-foreground">Scenario name</label>
                 <Input
                   value={scenarioName}
                   onChange={(e) => setScenarioName(e.target.value)}
                   placeholder="e.g. Friday Night Special"
-                  className="bg-white/3 border-white/10 text-white"
+                  className="bg-secondary/50 border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs text-gray-400">Steps ({steps.length})</label>
+                  <label className="text-xs text-muted-foreground">Steps ({steps.length})</label>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={addStep}
-                    className="h-7 text-xs border-white/10 hover:bg-white/5"
+                    className="h-7 text-xs border-border hover:bg-accent"
                   >
                     <Plus className="size-3" /> Add Step
                   </Button>
@@ -281,13 +278,13 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="grid grid-cols-12 gap-2 items-center p-2 rounded-md bg-white/3 border border-white/5"
+                    className="grid grid-cols-12 gap-2 items-center p-2 rounded-md bg-secondary/40 border border-border"
                   >
-                    <div className="col-span-1 text-center text-xs text-gray-500 font-mono">
+                    <div className="col-span-1 text-center text-xs text-muted-foreground font-mono">
                       #{i + 1}
                     </div>
                     <div className="col-span-3">
-                      <div className="flex items-center gap-1 text-[10px] text-gray-500 mb-0.5">
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-0.5">
                         <Clock className="size-3" /> Delay (ms)
                       </div>
                       <Input
@@ -296,21 +293,21 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                         onChange={(e) =>
                           updateStep(i, { delayMs: Math.max(0, parseInt(e.target.value) || 0) })
                         }
-                        className="h-8 bg-white/3 border-white/10 text-white text-xs"
+                        className="h-8 bg-secondary/50 border-border text-foreground text-xs"
                       />
                     </div>
                     <div className="col-span-4">
-                      <div className="text-[10px] text-gray-500 mb-0.5">Service</div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Service</div>
                       <Select
                         value={s.service}
                         onValueChange={(v) => updateStep(i, { service: v })}
                       >
-                        <SelectTrigger className="h-8 bg-white/3 border-white/10 text-white text-xs">
+                        <SelectTrigger className="h-8 bg-secondary/50 border-border text-foreground text-xs">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0d1220] border-white/10">
+                        <SelectContent className="bg-card border-border">
                           {SERVICE_NAMES.map((n) => (
-                            <SelectItem key={n} value={n} className="text-white text-xs">
+                            <SelectItem key={n} value={n} className="text-foreground text-xs">
                               {n}
                             </SelectItem>
                           ))}
@@ -318,17 +315,17 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                       </Select>
                     </div>
                     <div className="col-span-3">
-                      <div className="text-[10px] text-gray-500 mb-0.5">Anomaly</div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Anomaly</div>
                       <Select
                         value={s.type}
                         onValueChange={(v) => updateStep(i, { type: v as AnomalyType })}
                       >
-                        <SelectTrigger className="h-8 bg-white/3 border-white/10 text-white text-xs">
+                        <SelectTrigger className="h-8 bg-secondary/50 border-border text-foreground text-xs">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0d1220] border-white/10">
+                        <SelectContent className="bg-card border-border">
                           {ANOMALY_TYPES.map((t) => (
-                            <SelectItem key={t} value={t} className="text-white text-xs">
+                            <SelectItem key={t} value={t} className="text-foreground text-xs">
                               <span className="flex items-center gap-1">
                                 {ANOMALY_ICONS[t]}
                                 {ANOMALY_LABELS[t]}
@@ -344,7 +341,7 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                         variant="ghost"
                         onClick={() => removeStep(i)}
                         disabled={steps.length === 1}
-                        className="size-7 hover:bg-red-500/10 hover:text-red-400"
+                        className="size-7 hover:bg-red-500/10 hover:text-red-500"
                       >
                         <Trash2 className="size-3" />
                       </Button>
@@ -355,7 +352,6 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
             </motion.div>
           )}
 
-          {/* STEP 2: Review & Launch */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -364,15 +360,15 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-3"
             >
-              <div className="p-4 rounded-lg bg-white/3 border border-white/5">
-                <div className="text-xs text-gray-500 mb-1">Scenario name</div>
-                <div className="text-sm font-semibold text-white">
+              <div className="p-4 rounded-lg bg-secondary/40 border border-border">
+                <div className="text-xs text-muted-foreground mb-1">Scenario name</div>
+                <div className="text-sm font-semibold text-foreground">
                   {scenarioName || 'Custom Scenario'}
                 </div>
               </div>
-              <div className="text-xs text-gray-400">Execution timeline:</div>
+              <div className="text-xs text-muted-foreground">Execution timeline:</div>
               <div className="relative pl-4 space-y-2">
-                <div className="absolute left-1 top-2 bottom-2 w-px bg-white/10" />
+                <div className="absolute left-1 top-2 bottom-2 w-px bg-border" />
                 {steps.map((s, i) => (
                   <motion.div
                     key={i}
@@ -382,15 +378,15 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                     className="relative flex items-center gap-3"
                   >
                     <div
-                      className="size-2 rounded-full -ml-3.5 ring-2 ring-[#0d1220]"
+                      className="size-2 rounded-full -ml-3.5 ring-2 ring-background"
                       style={{ backgroundColor: ANOMALY_COLORS[s.type] }}
                     />
-                    <div className="flex-1 flex items-center justify-between p-2 rounded-md bg-white/3">
+                    <div className="flex-1 flex items-center justify-between p-2 rounded-md bg-secondary/40">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-gray-500">
+                        <span className="text-xs font-mono text-muted-foreground">
                           +{String(Math.floor(s.delayMs / 1000)).padStart(2, '0')}s
                         </span>
-                        <span className="text-xs text-white">{s.service}</span>
+                        <span className="text-xs text-foreground">{s.service}</span>
                         <span
                           className="text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1"
                           style={{
@@ -402,16 +398,16 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
                           {ANOMALY_LABELS[s.type]}
                         </span>
                       </div>
-                      <span className="text-[10px] text-gray-600">Step {i + 1}</span>
+                      <span className="text-[10px] text-muted-foreground">Step {i + 1}</span>
                     </div>
                   </motion.div>
                 ))}
               </div>
               <div className="p-3 rounded-md bg-orange-500/5 border border-orange-500/20 flex items-start gap-2">
-                <Zap className="size-4 text-orange-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-gray-400">
+                <Zap className="size-4 text-orange-500 mt-0.5 shrink-0" />
+                <div className="text-xs text-muted-foreground">
                   Total execution time:{' '}
-                  <span className="text-orange-400 font-mono">
+                  <span className="text-orange-500 font-mono">
                     {(
                       (steps[steps.length - 1]?.delayMs || 0) / 1000
                     ).toFixed(1)}
@@ -429,7 +425,7 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
           <Button
             variant="ghost"
             onClick={handleClose}
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             Cancel
           </Button>
@@ -438,7 +434,7 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
               <Button
                 variant="outline"
                 onClick={() => setStep((s) => Math.max(0, s - 1))}
-                className="border-white/10 hover:bg-white/5"
+                className="border-border hover:bg-accent text-foreground"
               >
                 <ChevronLeft className="size-4" /> Back
               </Button>
