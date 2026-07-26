@@ -1,4 +1,4 @@
-# 🔲 Chaos Simulator
+# 🔥 Chaos Simulator
 
 Real-time chaos engineering dashboard with self-healing microservices, animated SVG topology, particle effects, scenario builder, and live WebSocket telemetry.
 
