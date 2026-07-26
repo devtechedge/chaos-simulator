@@ -18,7 +18,7 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 **https://chaos-simulator-telemetry.vercel.app**
 
-> **Current status:** Frontend only is deployed on Vercel. The live site shows the full UI with static/demo service data. The real-time chaos engine (Bun + Socket.io backend) is not hosted in production, so auto-injection, self-healing, live logs, and scenario playback only work when you run the project locally.
+> **Current status:** The live site runs a full **client-side simulation** (no backend required). Chaos injection, self-healing, scenarios, latency charts, and event stream all work in the browser. The real Bun + Socket.io engine is available for local development only.
 
 ---
 
@@ -58,44 +58,55 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 | Frontend     | Next.js 16, React 19, TypeScript, Tailwind 4, shadcn/ui |
 | Animation    | Framer Motion 12, Canvas particles  |
 | Charts       | Recharts                            |
-| Realtime     | Socket.io 4 (client + server)       |
-| Backend      | Bun + Node http server              |
+| Realtime     | Socket.io 4 (client + server) — local engine |
+| Demo mode    | Pure client-side simulation (Vercel) |
+| Backend      | Bun + Node http server (local only) |
 | Package mgr  | Bun                                 |
-
----
-
-## Quick Start (local)
-
-```bash
-# Install frontend deps
-bun install
-
-# Install & start the chaos engine (port 3030)
-cd mini-services/chaos-engine
-bun install
-bun index.ts
-
-# In another terminal — start the dashboard (port 3000)
-cd ../..
-bun run dev
-```
-
-Open **http://localhost:3000**. The dashboard connects automatically and shows LIVE status.
 
 ---
 
 ## Architecture
 
+**Public live demo (Vercel)** uses a complete client-side chaos engine (`useChaosEngine`). No paid backend is required.
+
+**Local development** can also run the real Bun + Socket.io engine in `mini-services/chaos-engine` for a true multi-process setup.
+
 ```
-┌──────────────────────┐       ┌──────────────────────────────┐
-│  Next.js Dashboard   │◀─────■│  Chaos Engine (Bun)          │
-│  (port 3000)         │  WSS  │  Socket.io + REST + 3 services│
-└──────────────────────┘       └──────────────────────────────┘
+Vercel / Demo mode          Local Live mode
+┌───────────────────┐     ┌───────────────────┐     ┌───────────────────────────┐
+│  Next.js Dashboard   │     │  Next.js Dashboard   │◀───■│  Chaos Engine (Bun)     │
+│  + useChaosEngine    │     │  (Socket.io client)   │ WSS  │  + 3 mock services      │
+│  (client simulation) │     └───────────────────┘     └───────────────────────────┘
+└───────────────────┘
 ```
 
-- Frontend is a pure client that talks to the engine over Socket.io.
-- All state (service health, anomaly history, latency samples) lives in the engine process.
-- The Vercel deployment hosts only the frontend. A full live demo with working chaos engine would require a second host (Render, Railway, Fly.io, or a small VPS) for the long-running WebSocket server.
+A short video walkthrough of the local Bun engine will be added to this README once recorded.
+
+---
+
+## Quick Start (local — client-side demo)
+
+```bash
+bun install
+bun run dev
+```
+
+Open **http://localhost:3000**. The dashboard runs the full client-side simulation immediately.
+
+---
+
+## Quick Start (local — real Bun engine)
+
+```bash
+# Terminal 1 — chaos engine
+cd mini-services/chaos-engine
+bun install
+bun index.ts
+
+# Terminal 2 — dashboard (after wiring socket path)
+cd ../..
+bun run dev
+```
 
 ---
 
