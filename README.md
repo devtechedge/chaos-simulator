@@ -2,7 +2,7 @@
 
 Real-time chaos engineering dashboard with self-healing microservices, animated SVG topology, particle effects, scenario builder, and live WebSocket telemetry.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?logo=vercel)](https://chaos-simulator-telemetry.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?logo=vercel)](https://chaos-simulation.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.x-fbf0df?logo=bun)](https://bun.sh/)
@@ -16,7 +16,7 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 ## Live Demo
 
-**https://chaos-simulator-telemetry.vercel.app**
+**https://chaos-simulation.vercel.app**
 
 > **Current status:** The live site runs a full **client-side simulation** (no backend required). Chaos injection, self-healing, scenarios, latency charts, and event stream all work in the browser. The real Bun + Socket.io engine is available for local development only.
 
