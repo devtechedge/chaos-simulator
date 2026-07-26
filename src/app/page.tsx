@@ -486,7 +486,7 @@ export default function Dashboard() {
                   </div>
                   <div className="stat-cell">
                     <div className="text-[10px] text-muted-foreground font-medium">Recovery Target</div>
-                    <div className="text-foreground font-mono tabular-nums font-semibold"><15s</div>
+                    <div className="text-foreground font-mono tabular-nums font-semibold">{'<15s'}</div>
                   </div>
                   <div className="stat-cell">
                     <div className="text-[10px] text-muted-foreground font-medium">Latency Sample</div>
