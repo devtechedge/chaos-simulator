@@ -22,6 +22,22 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 ---
 
+## Screenshots
+
+### Dashboard Overview
+![Dashboard with live topology, latency chart and toast notifications](docs/screenshots/01-dashboard-overview.png)
+
+### Chaos Scenario Builder
+![Multi-step Scenario Builder with presets](docs/screenshots/02-scenario-builder.png)
+
+### Live Controls & Event Stream
+![Disaster controls, targeted injection and live event stream](docs/screenshots/03-controls-and-stream.png)
+
+### Anomaly Timeline
+![Filterable anomaly history with recovery times](docs/screenshots/04-anomaly-timeline.png)
+
+---
+
 ## Features
 
 - **3 mock microservices** (Auth, Payment, Inventory) with live health, latency, and request volume
