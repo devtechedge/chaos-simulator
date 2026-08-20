@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   // Chaos intervals live in useEffect; Strict Mode would double-fire them in dev.
   reactStrictMode: false,
   skipTrailingSlashRedirect: true,
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   async rewrites() {
     return [
       {

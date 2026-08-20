@@ -49,7 +49,7 @@ export function LiveLog({ logs }: Props) {
   }, [filtered.length])
 
   return (
-    <Card className="surface-card rounded-2xl h-[420px] flex flex-col">
+    <Card className="surface-card rounded-2xl h-[420px] flex flex-col" data-testid="event-stream">
       <CardHeader className="pb-2 shrink-0 px-5 pt-4">
         <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
           <Terminal className="size-4 text-emerald-500" />

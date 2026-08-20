@@ -2,6 +2,7 @@
 
 Real-time chaos engineering dashboard with self-healing microservices, animated SVG topology, particle effects, scenario builder, and live WebSocket telemetry.
 
+[![CI](https://github.com/devtechedge/chaos-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/devtechedge/chaos-simulator/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?logo=vercel)](https://chaos-simulation.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -129,8 +130,11 @@ Validation helpers, simulation state transitions, and Scenario Builder presets:
 bun install
 bun run test
 bun run typecheck
+bunx playwright install chromium
+bun run test:e2e
 ```
 
+CI (unit + typecheck + Playwright) runs on every push to `main`. Dependabot opens weekly PRs for npm and GitHub Actions updates.
 ---
 
 ## License

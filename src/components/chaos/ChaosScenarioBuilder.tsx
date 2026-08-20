@@ -120,7 +120,10 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-      <DialogContent className="max-w-3xl bg-card border-border text-foreground max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        data-testid="scenario-builder"
+        className="max-w-3xl bg-card border-border text-foreground max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Flame className="size-5 text-orange-500" />

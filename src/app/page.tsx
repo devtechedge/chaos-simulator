@@ -250,6 +250,7 @@ export default function Dashboard() {
             {/* Scenario Builder */}
             <Button
               size="sm"
+              data-testid="open-scenario-builder"
               onClick={() => setScenarioOpen(true)}
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white gap-1.5 shadow-lg shadow-orange-500/20"
             >
@@ -409,6 +410,7 @@ export default function Dashboard() {
                   <Button
                     variant="destructive"
                     className="w-full gap-2 shadow-lg shadow-red-500/20"
+                    data-testid="trigger-partition"
                     onClick={handleTriggerPartition}
                   >
                     <WifiOff className="size-4" />
@@ -440,6 +442,7 @@ export default function Dashboard() {
                         size="sm"
                         variant="outline"
                         className="text-[10px] h-7 px-2 border-red-500/20 text-red-500 hover:bg-red-500/10 hover:text-red-400"
+                        data-testid={`inject-${name}-500_ERROR`}
                         onClick={() => handleInjectAnomaly(name, '500_ERROR')}
                       >
                         500

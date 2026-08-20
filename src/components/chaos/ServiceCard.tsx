@@ -73,7 +73,7 @@ export function ServiceCard({ service, latencySamples, onRestart, onInjectAnomal
       whileHover={{ y: -3 }}
     >
       <motion.div animate={cardVariants[currentVariant]} transition={{ duration: 0.5 }}>
-        <Card className="surface-card rounded-2xl transition-all">
+        <Card className="surface-card rounded-2xl transition-all" data-testid={`service-card-${service.name}`}>
           <CardHeader className="pb-2 px-5 pt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">

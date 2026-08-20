@@ -136,7 +136,7 @@ Placeholder `GET /api` “Hello, world!” route **removed**.
 2. **Done:** Dependency audit triage.  
 3. **Done:** Unit tests (`bun run test`).  
 4. **Done:** Drop unused deps; Prisma/NextAuth/z.ai template files; `ignoreBuildErrors: false`.  
-5. **Later:** Enable GitHub Dependabot; optional Playwright e2e; optional unused-var lint tightening.
+5. **Done:** GitHub Dependabot + Playwright e2e (dashboard render, Scenario Builder, inject, partition) on CI.
 
 ---
 
@@ -146,5 +146,6 @@ Placeholder `GET /api` “Hello, world!” route **removed**.
 bun install
 bun run test
 bun run typecheck
+bun run test:e2e
 npm audit --omit=dev
 ```
