@@ -84,6 +84,16 @@ A short video walkthrough of the local Bun engine will be added to this README o
 
 ---
 
+## Security
+
+This is a portfolio demo: the public site has **no user authentication** and runs a **client-side simulation** only.
+
+The optional local Bun engine validates Socket.io payloads (service names, anomaly types, scenario limits) and reads `CORS_ORIGIN` from the environment. **Do not expose port 3030 publicly without auth and a locked CORS origin.**
+
+Full findings and recommendations: **[SECURITY.md](SECURITY.md)**.
+
+---
+
 ## Quick Start (local — client-side demo)
 
 ```bash
