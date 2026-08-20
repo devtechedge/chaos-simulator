@@ -1,6 +1,14 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { Server as SocketIOServer, Socket } from 'socket.io'
 
+import {
+  isAllowedService,
+  isAllowedAnomaly,
+  sanitizeScenarioName,
+  parseScenarioSteps,
+  isValidScenarioId,
+} from '../../src/lib/chaos-validation.ts'
+
 // Catch all unhandled errors so we can log them instead of silently dying
 process.on('uncaughtException', (err) => {
   console.error('[FATAL] Uncaught exception:', err)
@@ -75,51 +83,6 @@ const SERVICES_CONFIG = [
 ]
 
 const SERVICE_NAMES = SERVICES_CONFIG.map((s) => s.name)
-const ALLOWED_SERVICES = new Set(SERVICE_NAMES)
-const ALLOWED_ANOMALIES = new Set<AnomalyType>([
-  '500_ERROR',
-  'LATENCY_SPIKE',
-  'SERVICE_CRASH',
-  'NETWORK_PARTITION',
-])
-
-const MAX_SCENARIO_NAME_LEN = 80
-const MAX_SCENARIO_STEPS = 12
-const MAX_STEP_DELAY_MS = 120_000
-
-function isAllowedService(name: unknown): name is string {
-  return typeof name === 'string' && ALLOWED_SERVICES.has(name)
-}
-
-function isAllowedAnomaly(type: unknown): type is AnomalyType {
-  return typeof type === 'string' && ALLOWED_ANOMALIES.has(type as AnomalyType)
-}
-
-function sanitizeScenarioName(name: unknown): string {
-  if (typeof name !== 'string') return 'Custom Scenario'
-  const trimmed = name.replace(/[\u0000-\u001F\u007F]/g, '').trim()
-  if (!trimmed) return 'Custom Scenario'
-  return trimmed.slice(0, MAX_SCENARIO_NAME_LEN)
-}
-
-function parseScenarioSteps(raw: unknown): ScenarioStep[] | null {
-  if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_SCENARIO_STEPS) return null
-  const steps: ScenarioStep[] = []
-  for (const item of raw) {
-    if (!item || typeof item !== 'object') return null
-    const step = item as Record<string, unknown>
-    if (!isAllowedService(step.service) || !isAllowedAnomaly(step.type)) return null
-    const delayMs = Number(step.delayMs)
-    if (!Number.isFinite(delayMs) || delayMs < 0 || delayMs > MAX_STEP_DELAY_MS) return null
-    steps.push({
-      delayMs: Math.floor(delayMs),
-      service: step.service,
-      type: step.type,
-    })
-  }
-  return steps
-}
-
 /** CORS origin: set CORS_ORIGIN to your site in any non-local deployment. Default * is for local lab only. */
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
 
@@ -699,7 +662,7 @@ io.on('connection', (socket: Socket) => {
   })
 
   socket.on('cancel-scenario', (data: { scenarioId?: string }) => {
-    if (!data || typeof data.scenarioId !== 'string' || data.scenarioId.length > 32) {
+    if (!data || !isValidScenarioId(data.scenarioId)) {
       socket.emit('error-message', { error: 'invalid_scenario_id' })
       return
     }

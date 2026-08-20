@@ -120,6 +120,17 @@ bun run dev
 
 ---
 
+## Tests
+
+Validation helpers, simulation state transitions, and Scenario Builder presets:
+
+```bash
+bun install
+bun run test
+```
+
+---
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.

@@ -35,6 +35,7 @@ import {
 } from 'lucide-react'
 import type { AnomalyType, ScenarioStep } from '@/lib/chaos-types'
 import { SERVICE_NAMES, ANOMALY_LABELS } from '@/lib/chaos-types'
+import { SCENARIO_PRESETS } from '@/lib/chaos-presets'
 
 interface Props {
   open: boolean
@@ -62,46 +63,6 @@ const ANOMALY_COLORS: Record<AnomalyType, string> = {
   SERVICE_CRASH: '#ef4444',
   NETWORK_PARTITION: '#dc2626',
 }
-
-const PRESETS: { name: string; description: string; steps: ScenarioStep[] }[] = [
-  {
-    name: 'Rolling Thunder',
-    description: 'Sequential crashes across all services with 5s gaps',
-    steps: [
-      { delayMs: 0, service: 'AuthService', type: 'SERVICE_CRASH' },
-      { delayMs: 5000, service: 'PaymentService', type: 'SERVICE_CRASH' },
-      { delayMs: 10000, service: 'InventoryService', type: 'SERVICE_CRASH' },
-    ],
-  },
-  {
-    name: 'Latency Cascade',
-    description: 'Escalating latency spikes hitting each service in turn',
-    steps: [
-      { delayMs: 0, service: 'AuthService', type: 'LATENCY_SPIKE' },
-      { delayMs: 8000, service: 'PaymentService', type: 'LATENCY_SPIKE' },
-      { delayMs: 16000, service: 'InventoryService', type: 'LATENCY_SPIKE' },
-    ],
-  },
-  {
-    name: 'Black Friday',
-    description: 'Mixed storm: errors + crashes + partitions',
-    steps: [
-      { delayMs: 0, service: 'PaymentService', type: '500_ERROR' },
-      { delayMs: 4000, service: 'InventoryService', type: 'LATENCY_SPIKE' },
-      { delayMs: 9000, service: 'AuthService', type: 'NETWORK_PARTITION' },
-      { delayMs: 14000, service: 'PaymentService', type: 'SERVICE_CRASH' },
-    ],
-  },
-  {
-    name: 'Cascading Failure',
-    description: 'Auth fails → payment fails → inventory fails',
-    steps: [
-      { delayMs: 0, service: 'AuthService', type: '500_ERROR' },
-      { delayMs: 3000, service: 'PaymentService', type: 'SERVICE_CRASH' },
-      { delayMs: 7000, service: 'InventoryService', type: 'NETWORK_PARTITION' },
-    ],
-  },
-]
 
 export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
   const [step, setStep] = useState(0)
@@ -143,7 +104,7 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
   }
 
   const applyPreset = (presetIdx: number) => {
-    const preset = PRESETS[presetIdx]
+    const preset = SCENARIO_PRESETS[presetIdx]
     setScenarioName(preset.name)
     setSteps(preset.steps.map((s) => ({ ...s })))
     setStep(1)
@@ -202,7 +163,7 @@ export function ChaosScenarioBuilder({ open, onClose, onRun }: Props) {
               className="space-y-3"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {PRESETS.map((preset, i) => (
+                {SCENARIO_PRESETS.map((preset, i) => (
                   <motion.button
                     key={preset.name}
                     whileHover={{ y: -2 }}

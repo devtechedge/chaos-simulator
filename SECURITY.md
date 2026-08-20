@@ -188,8 +188,8 @@ Any origin can call REST telemetry endpoints and open a Socket.io control channe
 
 1. **Done:** SECURITY.md + engine allow-lists / payload guards + CORS env documentation.  
 2. **Done:** Dependency audit triage; pin Prisma 6.12.0; pin next-auth 4.24.15.  
-3. **Next:** Unit/integration tests for validation helpers and critical UI paths.  
-4. **Later:** Remove unused deps; drop `ignoreBuildErrors`; enable GitHub Dependabot.
+3. **Done:** Unit tests for validation helpers, simulation transitions, and Scenario Builder presets (`bun run test`).  
+4. **Later:** Remove unused deps; drop `ignoreBuildErrors`; enable GitHub Dependabot; optional e2e/Playwright.
 
 ---
 
