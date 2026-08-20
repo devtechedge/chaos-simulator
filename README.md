@@ -1,6 +1,6 @@
 # 🔥 Chaos Simulator
 
-Real-time chaos engineering dashboard with self-healing microservices, animated SVG topology, particle effects, scenario builder, and live WebSocket telemetry.
+Real-time chaos engineering dashboard with self-healing microservices, animated SVG topology, particle effects, scenario builder, and live telemetry.
 
 [![CI](https://github.com/devtechedge/chaos-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/devtechedge/chaos-simulator/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?logo=vercel)](https://chaos-simulation.vercel.app)
@@ -19,7 +19,9 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 **https://chaos-simulation.vercel.app**
 
-> **Current status:** The live site runs a full **client-side simulation** (no backend required). Chaos injection, self-healing, scenarios, latency charts, and event stream all work in the browser. The real Bun + Socket.io engine is available for local development only.
+> **Status:** The live site is a full **client-side simulation** (no backend, no paid host). Chaos injection, self-healing, scenarios, latency charts, and the event stream all run in the browser. A Bun + Socket.io engine lives in this repo for **local** use only — it is not exposed on Vercel.
+
+This is the **only** public repo for the project.
 
 ---
 
@@ -48,83 +50,50 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 - **Canvas particle bursts + synthesized sound** on every critical event
 - **Multi-step Scenario Builder** with presets (Black Friday, Cascading Failure, etc.)
 - **Real-time latency chart** (60 s window) and filterable anomaly timeline
-- **Manual injection controls** and massive network-partition button
+- **Manual injection controls** and a network-partition button
 
 ---
 
 ## Tech Stack
 
-| Layer        | Technology                          |
-|--------------|-------------------------------------|
+| Layer        | Technology |
+|--------------|------------|
 | Frontend     | Next.js 16, React 19, TypeScript, Tailwind 4, shadcn/ui |
-| Animation    | Framer Motion 12, Canvas particles  |
-| Charts       | Recharts                            |
-| Realtime     | Socket.io 4 — **local Bun engine only** |
-
-| Demo mode    | Pure client-side simulation (Vercel) |
-| Backend      | Bun + Node http server (local only) |
-| Package mgr  | Bun                                 |
+| Animation    | Framer Motion 12, Canvas particles |
+| Charts       | Recharts |
+| Demo mode    | Client-side simulation on Vercel |
+| Local engine | Bun + Socket.io (not public) |
+| CI           | GitHub Actions — unit, `tsc`, Playwright |
+| Package mgr  | Bun |
 
 ---
 
 ## Architecture
 
-**Public live demo (Vercel)** uses a complete client-side chaos engine (`useChaosEngine`). No paid backend is required.
+**Public demo (Vercel)** uses `useChaosEngine` in the browser. No paid backend.
 
-**Local development** can also run the real Bun + Socket.io engine in `mini-services/chaos-engine` for a true multi-process setup.
+**Local optional engine** is `mini-services/chaos-engine` (Bun + Socket.io). The dashboard you open on Vercel does not connect to it.
 
 ```
-Vercel / Demo mode          Local Live mode
-┌───────────────────┐     ┌───────────────────┐     ┌───────────────────────────┐
-│  Next.js Dashboard   │     │  Next.js Dashboard   │◀───■│  Chaos Engine (Bun)     │
-│  + useChaosEngine    │     │  (Socket.io client)   │ WSS  │  + 3 mock services      │
-│  (client simulation) │     └───────────────────┘     └───────────────────────────┘
-└───────────────────┘
-```
-
-A short video walkthrough of the local Bun engine will be added to this README once recorded.
-
----
-
-## Security
-
-This is a portfolio demo: the public site has **no user authentication** and runs a **client-side simulation** only.
-
-The optional local Bun engine validates Socket.io payloads (service names, anomaly types, scenario limits) and reads `CORS_ORIGIN` from the environment. **Do not expose port 3030 publicly without auth and a locked CORS origin.**
-
-Full findings and recommendations: **[SECURITY.md](SECURITY.md)**.
-
----
-
-## Quick Start (local — client-side demo)
-
-```bash
-bun install
-bun run dev
-```
-
-Open **http://localhost:3000**. The dashboard runs the full client-side simulation immediately.
-
----
-
-## Quick Start (local — real Bun engine)
-
-```bash
-# Terminal 1 — chaos engine
-cd mini-services/chaos-engine
-bun install
-bun index.ts
-
-# Terminal 2 — dashboard (after wiring socket path)
-cd ../..
-bun run dev
+Vercel / Demo                         Local only
+┌─────────────────────────┐         ┌──────────────────────────┐
+│ Next.js dashboard       │         │ Chaos Engine (Bun :3030) │
+│ + useChaosEngine        │         │ + 3 mock services        │
+│ (client simulation)     │         └──────────────────────────┘
+└─────────────────────────┘
 ```
 
 ---
 
-## Tests
+## Quality
 
-Validation helpers, simulation state transitions, and Scenario Builder presets:
+| Check | How |
+|-------|-----|
+| Unit tests | Validation, simulation transitions, Scenario Builder presets |
+| Types | `ignoreBuildErrors` is **off** — `bun run typecheck` |
+| E2E | Playwright: dashboard, Scenario Builder, 500 inject, partition |
+| CI | [GitHub Actions](https://github.com/devtechedge/chaos-simulator/actions) on every push to `main` |
+| Supply chain | Unused template packages removed; Dependabot weekly (**patch/minor only** — do not merge majors blindly) |
 
 ```bash
 bun install
@@ -134,9 +103,46 @@ bunx playwright install chromium
 bun run test:e2e
 ```
 
-CI (unit + typecheck + Playwright) runs on every push to `main`. Dependabot opens weekly PRs for npm and GitHub Actions updates.
+---
+
+## Security
+
+Portfolio demo: **no user login** on the public site. The browser simulation cannot reach other users.
+
+The local Bun engine allow-lists service names and anomaly types, caps scenario payloads, and reads `CORS_ORIGIN` from the environment. **Do not bind port 3030 to the internet** without auth and a locked origin.
+
+Details: **[SECURITY.md](SECURITY.md)**.
+
+---
+
+## Quick Start (demo — same as Vercel)
+
+```bash
+bun install
+bun run dev
+```
+
+Open **http://localhost:3000**.
+
+---
+
+## Quick Start (local Bun engine)
+
+```bash
+# Terminal 1
+cd mini-services/chaos-engine
+bun install
+bun index.ts
+
+# Terminal 2
+cd ../..
+bun run dev
+```
+
+The public dashboard remains the client-side engine unless you wire Socket.io locally.
+
 ---
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE).
