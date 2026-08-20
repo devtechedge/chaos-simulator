@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  // Type errors fail the build (ignoreBuildErrors was a template leftover).
+  // Vercel does not use Next standalone output. Keep it for local `next start` only.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   typescript: {
     ignoreBuildErrors: false,
   },
