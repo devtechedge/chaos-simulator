@@ -65,7 +65,7 @@ interface Scenario {
 }
 
 // ============================================================
-// SERVICE REGISTRY — 3 mock target microservices
+// SECURITY — allow-lists & input validation
 // ============================================================
 
 const SERVICES_CONFIG = [
@@ -73,6 +73,59 @@ const SERVICES_CONFIG = [
   { name: 'PaymentService', baselineLatencyMs: 78, baseRequestVolume: 850 },
   { name: 'InventoryService', baselineLatencyMs: 32, baseRequestVolume: 2100 },
 ]
+
+const SERVICE_NAMES = SERVICES_CONFIG.map((s) => s.name)
+const ALLOWED_SERVICES = new Set(SERVICE_NAMES)
+const ALLOWED_ANOMALIES = new Set<AnomalyType>([
+  '500_ERROR',
+  'LATENCY_SPIKE',
+  'SERVICE_CRASH',
+  'NETWORK_PARTITION',
+])
+
+const MAX_SCENARIO_NAME_LEN = 80
+const MAX_SCENARIO_STEPS = 12
+const MAX_STEP_DELAY_MS = 120_000
+
+function isAllowedService(name: unknown): name is string {
+  return typeof name === 'string' && ALLOWED_SERVICES.has(name)
+}
+
+function isAllowedAnomaly(type: unknown): type is AnomalyType {
+  return typeof type === 'string' && ALLOWED_ANOMALIES.has(type as AnomalyType)
+}
+
+function sanitizeScenarioName(name: unknown): string {
+  if (typeof name !== 'string') return 'Custom Scenario'
+  const trimmed = name.replace(/[\u0000-\u001F\u007F]/g, '').trim()
+  if (!trimmed) return 'Custom Scenario'
+  return trimmed.slice(0, MAX_SCENARIO_NAME_LEN)
+}
+
+function parseScenarioSteps(raw: unknown): ScenarioStep[] | null {
+  if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_SCENARIO_STEPS) return null
+  const steps: ScenarioStep[] = []
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') return null
+    const step = item as Record<string, unknown>
+    if (!isAllowedService(step.service) || !isAllowedAnomaly(step.type)) return null
+    const delayMs = Number(step.delayMs)
+    if (!Number.isFinite(delayMs) || delayMs < 0 || delayMs > MAX_STEP_DELAY_MS) return null
+    steps.push({
+      delayMs: Math.floor(delayMs),
+      service: step.service,
+      type: step.type,
+    })
+  }
+  return steps
+}
+
+/** CORS origin: set CORS_ORIGIN to your site in any non-local deployment. Default * is for local lab only. */
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
+
+// ============================================================
+// SERVICE REGISTRY — 3 mock target microservices
+// ============================================================
 
 const services: Map<string, MicroserviceState> = new Map()
 
@@ -105,7 +158,6 @@ function initLatencyHistory() {
   const now = Date.now()
   for (const cfg of SERVICES_CONFIG) {
     const samples: LatencySample[] = []
-    // Seed 60 samples (one per second going back in time)
     for (let i = MAX_LATENCY_SAMPLES - 1; i >= 0; i--) {
       const ts = now - i * 1000
       const jitter = Math.floor(Math.random() * 12 - 6)
@@ -130,7 +182,6 @@ function pushLatencySample(serviceName: string, latencyMs: number, baselineLaten
 
 function sampleAllLatencies() {
   for (const [name, svc] of services) {
-    // Use current service latency (which may be spiked) with small jitter
     const baseLatency = svc.isCrashed ? 0 : svc.latencyMs
     const jitter = svc.health === 'Healthy' ? Math.floor(Math.random() * 8 - 4) : 0
     pushLatencySample(name, Math.max(0, baseLatency + jitter), svc.baselineLatencyMs)
@@ -145,7 +196,7 @@ function sampleAllLatencies() {
 }
 
 // ============================================================
-// ANOMALY HISTORY (full timeline of all anomaly events)
+// ANOMALY HISTORY
 // ============================================================
 
 const anomalyHistory: AnomalyHistoryEntry[] = []
@@ -171,7 +222,6 @@ function pushAnomalyStart(
 }
 
 function markAnomalyResolved(serviceName: string) {
-  // Find the most recent unresolved anomaly for this service
   for (let i = anomalyHistory.length - 1; i >= 0; i--) {
     const entry = anomalyHistory[i]
     if (entry.serviceName === serviceName && entry.resolvedAt === null) {
@@ -210,7 +260,7 @@ function pushLog(level: LogEvent['level'], service: string, message: string): Lo
 // ============================================================
 
 function handleHttpRequest(req: IncomingMessage, res: ServerResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN)
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
@@ -220,6 +270,7 @@ function handleHttpRequest(req: IncomingMessage, res: ServerResponse) {
     return true
   }
 
+  // Read-only endpoints only — no state mutation over HTTP
   if (req.url?.startsWith('/api/telemetry')) {
     const snapshot = getTelemetrySnapshot()
     res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -267,7 +318,7 @@ const httpServer = createServer((req, res) => {
 
 const io = new SocketIOServer(httpServer, {
   path: '/socket.io/',
-  cors: { origin: '*', methods: ['GET', 'POST'] },
+  cors: { origin: CORS_ORIGIN, methods: ['GET', 'POST'] },
   pingTimeout: 60000,
   pingInterval: 25000,
   allowRequest: (req, callback) => {
@@ -278,13 +329,6 @@ const io = new SocketIOServer(httpServer, {
     callback(null, true)
   },
 })
-
-// ============================================================
-// URL NORMALIZER — runs BEFORE socket.io's request handler.
-// Next.js proxy strips trailing slashes from /socket.io/ to /socket.io,
-// which socket.io rejects. We normalize the URL back before socket.io
-// sees it. We use prependListener so our handler runs before engine.io's.
-// ============================================================
 
 function normalizeSocketIoUrl(req: IncomingMessage) {
   if (req.url === '/socket.io' || req.url?.startsWith('/socket.io?')) {
@@ -299,10 +343,6 @@ httpServer.prependListener('request', (req: IncomingMessage, _res: ServerRespons
 httpServer.prependListener('upgrade', (req: IncomingMessage, _socket, _head) => {
   normalizeSocketIoUrl(req)
 })
-
-// ============================================================
-// TELEMETRY SNAPSHOT HELPER
-// ============================================================
 
 function getTelemetrySnapshot() {
   return Array.from(services.values()).map((s) => ({
@@ -327,11 +367,10 @@ function broadcastLog(entry: LogEvent) {
 }
 
 // ============================================================
-// CHAOS INJECTOR ENGINE — every 30 seconds
+// CHAOS INJECTOR
 // ============================================================
 
 const ANOMALY_TYPES: AnomalyType[] = ['500_ERROR', 'LATENCY_SPIKE', 'SERVICE_CRASH']
-const SERVICE_NAMES = SERVICES_CONFIG.map((s) => s.name)
 
 let chaosInterval: ReturnType<typeof setInterval> | null = null
 let chaosEnabled = true
@@ -342,16 +381,17 @@ function injectAnomaly(
   triggeredBy: 'auto' | 'manual' | 'scenario' = 'auto'
 ) {
   const target = serviceName || SERVICE_NAMES[Math.floor(Math.random() * SERVICE_NAMES.length)]
+  if (!isAllowedService(target)) return
   const svc = services.get(target)
   if (!svc) return
 
   if (svc.health !== 'Healthy' && !type) return
 
   const anomalyType = type || ANOMALY_TYPES[Math.floor(Math.random() * ANOMALY_TYPES.length)]
+  if (!isAllowedAnomaly(anomalyType)) return
+
   svc.anomaly = anomalyType
   svc.anomalyStartedAt = Date.now()
-
-  // Record anomaly start in history
   pushAnomalyStart(target, anomalyType, triggeredBy)
 
   switch (anomalyType) {
@@ -424,7 +464,7 @@ function startChaosLoop() {
 }
 
 // ============================================================
-// SELF-HEALING RECOVERY WORKER — every 5s
+// SELF-HEALING
 // ============================================================
 
 let healerInterval: ReturnType<typeof setInterval> | null = null
@@ -478,7 +518,7 @@ function startHealerLoop() {
 }
 
 // ============================================================
-// REQUEST VOLUME SIMULATION — every 4s
+// TRAFFIC + LATENCY SIM
 // ============================================================
 
 let volumeInterval: ReturnType<typeof setInterval> | null = null
@@ -499,10 +539,6 @@ function startTrafficSimulator() {
   volumeInterval = setInterval(simulateTraffic, 4000)
 }
 
-// ============================================================
-// LATENCY SAMPLER — every 1s
-// ============================================================
-
 let latencyInterval: ReturnType<typeof setInterval> | null = null
 
 function startLatencySampler() {
@@ -511,7 +547,7 @@ function startLatencySampler() {
 }
 
 // ============================================================
-// SCENARIO RUNNER — executes a multi-step chaos scenario
+// SCENARIO RUNNER
 // ============================================================
 
 const activeScenarios: Map<string, ReturnType<typeof setInterval>[]> = new Map()
@@ -549,7 +585,6 @@ function runScenario(scenario: Scenario) {
     timers.push(t)
   }
 
-  // Final completion notification
   const totalDuration = scenario.steps.reduce((sum, s) => sum + s.delayMs, 0) + 2000
   const completionTimer = setTimeout(() => {
     const doneLog = pushLog(
@@ -566,23 +601,19 @@ function runScenario(scenario: Scenario) {
   }, totalDuration)
   timers.push(completionTimer)
 
-  // Track timers (we use setTimeout not setInterval; track for potential cancellation)
   const intervalIds = timers as unknown as ReturnType<typeof setInterval>[]
   activeScenarios.set(scenario.id, intervalIds)
 }
 
 // ============================================================
-// SOCKET.IO EVENT HANDLERS
+// SOCKET.IO EVENT HANDLERS (validated)
 // ============================================================
 
 io.on('connection', (socket: Socket) => {
   console.log(`[ChaosEngine] Client connected: ${socket.id}`)
 
-  // Send current state immediately
   socket.emit('telemetry', { services: getTelemetrySnapshot(), timestamp: Date.now() })
   socket.emit('log-history', eventLog.slice(-50))
-
-  // Send latency history
   socket.emit('latency-history', {
     services: Array.from(latencyHistory.entries()).map(([name, samples]) => ({
       serviceName: name,
@@ -590,11 +621,13 @@ io.on('connection', (socket: Socket) => {
     })),
     timestamp: Date.now(),
   })
-
-  // Send anomaly history
   socket.emit('anomaly-history', { anomalies: anomalyHistory, timestamp: Date.now() })
 
-  socket.on('manual-restart', (data: { service: string }) => {
+  socket.on('manual-restart', (data: { service?: string }) => {
+    if (!data || !isAllowedService(data.service)) {
+      socket.emit('error-message', { error: 'invalid_service' })
+      return
+    }
     const svc = services.get(data.service)
     if (!svc) return
     const wasAnomalous = svc.anomaly !== null
@@ -628,7 +661,11 @@ io.on('connection', (socket: Socket) => {
     }
   })
 
-  socket.on('toggle-chaos', (data: { enabled: boolean }) => {
+  socket.on('toggle-chaos', (data: { enabled?: boolean }) => {
+    if (!data || typeof data.enabled !== 'boolean') {
+      socket.emit('error-message', { error: 'invalid_payload' })
+      return
+    }
     chaosEnabled = data.enabled
     const log = pushLog(
       'INFO',
@@ -638,23 +675,34 @@ io.on('connection', (socket: Socket) => {
     broadcastLog(log)
   })
 
-  socket.on('inject-anomaly', (data: { service: string; type: AnomalyType }) => {
+  socket.on('inject-anomaly', (data: { service?: string; type?: string }) => {
+    if (!data || !isAllowedService(data.service) || !isAllowedAnomaly(data.type)) {
+      socket.emit('error-message', { error: 'invalid_inject_payload' })
+      return
+    }
     injectAnomaly(data.service, data.type, 'manual')
   })
 
-  // NEW: Run a multi-step chaos scenario
-  socket.on('run-scenario', (data: { name: string; steps: ScenarioStep[] }) => {
+  socket.on('run-scenario', (data: { name?: string; steps?: unknown }) => {
+    const steps = parseScenarioSteps(data?.steps)
+    if (!steps) {
+      socket.emit('error-message', { error: 'invalid_scenario' })
+      return
+    }
     const scenario: Scenario = {
       id: Math.random().toString(36).slice(2, 11),
-      name: data.name || 'Custom Scenario',
-      steps: data.steps,
+      name: sanitizeScenarioName(data?.name),
+      steps,
     }
     runScenario(scenario)
     socket.emit('scenario-accepted', { scenarioId: scenario.id, scenarioName: scenario.name })
   })
 
-  // NEW: Cancel a running scenario (best-effort)
-  socket.on('cancel-scenario', (data: { scenarioId: string }) => {
+  socket.on('cancel-scenario', (data: { scenarioId?: string }) => {
+    if (!data || typeof data.scenarioId !== 'string' || data.scenarioId.length > 32) {
+      socket.emit('error-message', { error: 'invalid_scenario_id' })
+      return
+    }
     const timers = activeScenarios.get(data.scenarioId)
     if (timers) {
       timers.forEach(clearTimeout)
@@ -677,7 +725,7 @@ io.on('connection', (socket: Socket) => {
 // STARTUP
 // ============================================================
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3030
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3030
 
 httpServer.listen(PORT, () => {
   console.log(`\n🜄 Chaos Engine running on port ${PORT}`)
@@ -686,8 +734,10 @@ httpServer.listen(PORT, () => {
   console.log(`  Latency:   http://localhost:${PORT}/api/latency-history`)
   console.log(`  Health:    http://localhost:${PORT}/health`)
   console.log(`  WebSocket: ws://localhost:${PORT}/socket.io/`)
+  console.log(`  CORS_ORIGIN: ${CORS_ORIGIN}`)
   console.log(`\n  Microservices: ${SERVICE_NAMES.join(', ')}`)
-  console.log(`  Chaos interval: 30s | Self-healing check: 5s | Latency sample: 1s\n`)
+  console.log(`  Chaos interval: 30s | Self-healing check: 5s | Latency sample: 1s`)
+  console.log(`  NOTE: Do not expose this port publicly without auth + locked CORS.\n`)
 
   pushLog('INFO', 'ChaosEngine', 'System initialized. All 3 microservices reporting HEALTHY.')
   pushLog(
