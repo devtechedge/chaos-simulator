@@ -2,16 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Type errors fail the build (ignoreBuildErrors was a template leftover).
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
+  // Chaos intervals live in useEffect; Strict Mode would double-fire them in dev.
   reactStrictMode: false,
-  // Disable trailing-slash redirect so socket.io paths like `/socket.io/`
-  // are not rewritten to `/socket.io` (which would break the connection).
   skipTrailingSlashRedirect: true,
-  // Proxy socket.io requests to the chaos-engine mini-service on port 3030.
-  // The dashboard connects with path `/socket.io/`, so we forward all
-  // `/socket.io/*` requests to localhost:3030.
   async rewrites() {
     return [
       {

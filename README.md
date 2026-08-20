@@ -58,7 +58,8 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 | Frontend     | Next.js 16, React 19, TypeScript, Tailwind 4, shadcn/ui |
 | Animation    | Framer Motion 12, Canvas particles  |
 | Charts       | Recharts                            |
-| Realtime     | Socket.io 4 (client + server) — local engine |
+| Realtime     | Socket.io 4 — **local Bun engine only** |
+
 | Demo mode    | Pure client-side simulation (Vercel) |
 | Backend      | Bun + Node http server (local only) |
 | Package mgr  | Bun                                 |
@@ -127,6 +128,7 @@ Validation helpers, simulation state transitions, and Scenario Builder presets:
 ```bash
 bun install
 bun run test
+bun run typecheck
 ```
 
 ---
