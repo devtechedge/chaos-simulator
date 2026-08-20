@@ -14,7 +14,7 @@
 | Authorization | **High if engine is exposed** | Any Socket.io client can inject chaos / restart services |
 | XSS | **Low** | No `dangerouslySetInnerHTML` found; React text escaping used |
 | Injection (SQL) | **N/A in active path** | Prisma/SQLite present as template; not used by demo UI |
-| Dependency CVEs | **Needs audit** | Run `bun audit` / `npm audit` on every release |
+| Dependency CVEs | **Triaged** | 0 critical, 5 high, 4 moderate — see §4 |
 | Secrets in repo | **Low** | `.env*` gitignored; `.env.example` has no secrets |
 | CORS | **Medium (local engine)** | Engine defaults to `origin: '*'` |
 | Build config | **Process smell** | `typescript.ignoreBuildErrors: true` hides type issues |
@@ -48,7 +48,7 @@
 - Service lookups use `Map.get(name)` — unknown names are mostly no-ops, but **types and names were not strictly validated** before hardening.
 - Scenario `name` is echoed into logs and UI; treat as untrusted display string (React escapes text nodes).
 
-**Hardening applied (this pass)**
+**Hardening applied**
 - Allow-list for service names and anomaly types on the engine.
 - Cap scenario name length and step count.
 - Reject malformed socket payloads early.
@@ -68,25 +68,57 @@
 
 ---
 
-## 4. Dependency / supply chain
+## 4. Dependency / supply chain (npm audit — 2026-08-20)
 
-**Findings**
-- Large dependency tree (Next 16, Radix, Prisma, next-auth, socket.io-client, `z-ai-web-dev-sdk`, etc.).
-- No GitHub security advisories published on this repo yet.
-- `typescript.ignoreBuildErrors: true` can hide broken types that sometimes correlate with unsafe patterns.
+Ran `npm audit` against the current `package.json` ranges (965 packages resolved). **0 critical, 5 high, 4 moderate.**
 
-**Required ongoing practice**
+Local engine (`socket.io@4.8.3`) audit: **0 vulnerabilities.**
+
+GitHub Dependabot alerts are **disabled** on this repo (API 403). Enable them in Settings → Code security.
+
+### High
+
+| Package | Direct? | Issue | Exploitability here | Action |
+|---------|---------|-------|---------------------|--------|
+| `prisma` / `@prisma/config` / `deepmerge-ts` | Yes (`prisma`) | Stack exhaustion merging recursive objects (`GHSA-ggr8-5vv4-36mx`). Affects Prisma **6.13.0+** through ~7.10 | **Low** — Prisma is unused on the live demo path; only matters if `prisma` CLI parses hostile config | **Pinned to `6.12.0`** (below vulnerable range). Better later: remove unused Prisma |
+| `sharp` `<0.35.0` | Yes | Inherited libvips CVEs (`GHSA-f88m-g3jw-g9cj`) | **Low** on this demo — Next uses sharp at **build/image** time, not for untrusted user uploads | **Hold at 0.34.x** until Next 16 officially tracks 0.35; do not process untrusted images |
+| `js-yaml` (via `@mdxeditor/editor`) | Transitive | YAML DoS (quadratic merge keys / `!!omap`) | **Low** — MDX editor is unused in the chaos UI; no YAML user input | Prefer **remove unused `@mdxeditor/editor`**. Alt: upgrade editor to 4.2.0 (major) |
+
+### Moderate
+
+| Package | Direct? | Issue | Exploitability here | Action |
+|---------|---------|-------|---------------------|--------|
+| `react-syntax-highlighter` 15.x → `prismjs` DOM clobber | Yes | `GHSA-x7hr-w5r2-h6wg` | **Low** unless highlighter renders untrusted HTML | Prefer **remove unused highlighter**. Alt: jump to 16.1.1 (major) |
+| `@mdxeditor/editor` ≤4.0.3 | Yes | Pulls vulnerable `js-yaml` | Same as js-yaml | Remove or major-upgrade |
+
+### Not in this audit report, but relevant
+
+| Package | Notes |
+|---------|--------|
+| `next-auth` | **Pinned to `4.24.15`** (fixes `CVE-2026-73418` / `getToken()` DoS). Package is **unused** — still safest to delete later |
+| `next` 16.x | No advisory in this audit run |
+| `socket.io` / `socket.io-client` 4.8.3 | Clean |
+
+### Unused deps that inflate attack surface (cleanup later)
+
+These are template leftovers, not used by the public dashboard:
+
+- `next-auth`
+- `prisma` / `@prisma/client`
+- `@mdxeditor/editor`
+- `react-syntax-highlighter`
+- `next-intl` (likely)
+- `z-ai-web-dev-sdk`
+
+Removing them is better than patching them.
+
+### How to re-audit
+
 ```bash
-bun audit
-# or
-npm audit --omit=dev
+bun install
+npm audit
+# or: bun run audit
 ```
-Re-run on every dependency bump and before each release.
-
-**Recommendations**
-1. Run audit locally and fix high/critical issues.
-2. Prefer removing unused deps (`next-auth`, Prisma if unused, `z-ai-web-dev-sdk` if unused).
-3. Turn off `ignoreBuildErrors` when practical so CI catches type regressions.
 
 ---
 
@@ -103,7 +135,7 @@ Any origin can call REST telemetry endpoints and open a Socket.io control channe
 - **Localhost-only** (default): acceptable for a lab demo.
 - **Public IP / tunnel without auth**: anyone can trigger partitions, crashes, scenarios.
 
-**Hardening applied (this pass)**
+**Hardening applied**
 - CORS origin from `CORS_ORIGIN` env (default remains `*` for local DX, documented as unsafe for public bind).
 - Socket payload validation (see §2).
 
@@ -117,7 +149,6 @@ Any origin can call REST telemetry endpoints and open a Socket.io control channe
 **Findings**
 - `.gitignore` correctly excludes `.env`, `.env*.local`, Prisma DB files, logs.
 - `.env.example` documents optional `NEXT_PUBLIC_CHAOS_ENGINE_URL`, `CORS_ORIGIN`, `PORT` — no credentials.
-- No secret scanning hits expected for committed example config.
 
 **Recommendations**
 - Keep real secrets out of git (already).
@@ -145,6 +176,7 @@ Any origin can call REST telemetry endpoints and open a Socket.io control channe
 **Accepted for portfolio demo**
 - No user authentication on the public site.
 - Client-side chaos controls (they only affect the browser simulation).
+- `sharp` 0.34.x until Next 16 tracks 0.35 (no untrusted image pipeline).
 
 **Not accepted if engine is public**
 - Open Socket.io mutations without auth.
@@ -154,23 +186,21 @@ Any origin can call REST telemetry endpoints and open a Socket.io control channe
 
 ## 9. Follow-ups (ordered)
 
-1. **Done in this pass:** SECURITY.md + engine allow-lists / payload guards + CORS env documentation.  
-2. **Next:** Run `bun audit` and record results; remove clearly unused deps.  
+1. **Done:** SECURITY.md + engine allow-lists / payload guards + CORS env documentation.  
+2. **Done:** Dependency audit triage; pin Prisma 6.12.0; pin next-auth 4.24.15.  
 3. **Next:** Unit/integration tests for validation helpers and critical UI paths.  
-4. **Later:** Deep code review; consider dropping `ignoreBuildErrors`; optional auth if productized.
+4. **Later:** Remove unused deps; drop `ignoreBuildErrors`; enable GitHub Dependabot.
 
 ---
 
 ## 10. How to re-test
 
 ```bash
-# Dependency audit
 bun install
-bun audit
+npm audit
 
 # Local engine only — confirm validation rejects bad payloads
 cd mini-services/chaos-engine && bun index.ts
-# From another terminal, attempt invalid inject-anomaly / run-scenario payloads via a socket client
 
 # Confirm .env is not tracked
 git check-ignore -v .env .env.local
