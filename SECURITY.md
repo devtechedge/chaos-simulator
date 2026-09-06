@@ -1,6 +1,6 @@
 # Security Assessment — Chaos Simulator
 
-**Date:** 2026-08-20  
+**Date:** 2026-09-06  
 **Scope:** Auth, injection, XSS, dependency risk, CORS, Socket.io surface, secrets hygiene  
 **Context:** Public deploy is a **client-side simulation** (Vercel). Real Bun + Socket.io engine is **local-only** by design.
 
@@ -149,3 +149,11 @@ bun run typecheck
 bun run test:e2e
 npm audit --omit=dev
 ```
+
+## Repository visibility
+
+This repository is currently **public** for portfolio review. When the open-source
+build story is no longer needed, **the GitHub repo will go private**. Making the
+repo private reduces source disclosure; it does **not** replace strong production
+secrets, auth allow-lists, webhook signatures, or Vercel/Actions environment
+hygiene. Rotate any credential that was pasted into chat, tickets, or screenshots.
