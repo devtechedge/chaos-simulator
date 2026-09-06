@@ -9,48 +9,24 @@ import type {
   AnomalyHistoryEntry,
   ScenarioStep,
 } from '@/lib/chaos-types'
-
-// ============================================================
-// CONSTANTS
-// ============================================================
-
-const SERVICES_CONFIG = [
-  { name: 'AuthService', baselineLatencyMs: 45, baseRequestVolume: 1200 },
-  { name: 'PaymentService', baselineLatencyMs: 78, baseRequestVolume: 850 },
-  { name: 'InventoryService', baselineLatencyMs: 32, baseRequestVolume: 2100 },
-] as const
+import {
+  SERVICES_CONFIG,
+  MAX_LATENCY_SAMPLES,
+  MAX_LOG_ENTRIES,
+  MAX_ANOMALY_HISTORY,
+  makeHealthyService,
+} from '@/lib/chaos-sim'
 
 const ANOMALY_TYPES: AnomalyType[] = ['500_ERROR', 'LATENCY_SPIKE', 'SERVICE_CRASH']
-
-const MAX_LATENCY_SAMPLES = 60
-const MAX_LOG_ENTRIES = 200
-const MAX_ANOMALY_HISTORY = 200
-
-// ============================================================
-// HELPERS
-// ============================================================
 
 function uid(): string {
   return Math.random().toString(36).slice(2, 11)
 }
 
-// ============================================================
-// HOOK
-// ============================================================
-
 export function useChaosEngine() {
   // --- State ---
   const [services, setServices] = useState<ServiceData[]>(() =>
-    SERVICES_CONFIG.map((cfg) => ({
-      name: cfg.name,
-      health: 'Healthy' as const,
-      latencyMs: cfg.baselineLatencyMs,
-      baselineLatencyMs: cfg.baselineLatencyMs,
-      requestVolume: cfg.baseRequestVolume,
-      outagesPrevented: 0,
-      isCrashed: false,
-      anomaly: null,
-    }))
+    SERVICES_CONFIG.map((cfg) => makeHealthyService(cfg))
   )
 
   const [latencyHistory, setLatencyHistory] = useState<Record<string, LatencySample[]>>(() => {
