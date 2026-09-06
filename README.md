@@ -72,7 +72,6 @@ This is the **only** public repo for the project.
 
 **Public demo (Vercel)** uses `useChaosEngine` in the browser. No paid backend.
 
-**Local optional engine** is `mini-services/chaos-engine` (Bun + Socket.io). The dashboard you open on Vercel does not connect to it.
 
 ```
 Vercel / Demo                         Local only
@@ -126,22 +125,6 @@ Open **http://localhost:3000**.
 
 ---
 
-## Quick Start (local Bun engine)
-
-```bash
-# Terminal 1
-cd mini-services/chaos-engine
-bun install
-bun index.ts
-
-# Terminal 2
-cd ../..
-bun run dev
-```
-
-The public dashboard remains the client-side engine unless you wire Socket.io locally.
-
----
 
 ## License
 
