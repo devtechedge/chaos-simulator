@@ -19,7 +19,7 @@ Real-time chaos engineering dashboard with self-healing microservices, animated 
 
 **https://chaos-simulation.vercel.app**
 
-> **Status:** The live site is a full **client-side simulation** (no backend, no paid host). Chaos injection, self-healing, scenarios, latency charts, and the event stream all run in the browser. A Bun + Socket.io engine lives in this repo for **local** use only — it is not exposed on Vercel.
+> **Status:** The live site is a full **client-side simulation** (no backend, no paid host). Chaos injection, self-healing, scenarios, latency charts, and the event stream all run in the browser. A Bun + Socket.io engine lives in this repo for **local** use only - it is not exposed on Vercel.
 
 This is the **only** public repo for the project.
 
@@ -44,8 +44,8 @@ This is the **only** public repo for the project.
 ## Features
 
 - **3 mock microservices** (Auth, Payment, Inventory) with live health, latency, and request volume
-- **Automated chaos injector** — 500 errors, latency spikes, and service crashes every 30 s
-- **Self-healing recovery** — services restore themselves within 8–15 seconds
+- **Automated chaos injector** - 500 errors, latency spikes, and service crashes every 30 s
+- **Self-healing recovery** - services restore themselves within 8–15 seconds
 - **Animated SVG topology** with particle data flow and health-based pulse rings
 - **Canvas particle bursts + synthesized sound** on every critical event
 - **Multi-step Scenario Builder** with presets (Black Friday, Cascading Failure, etc.)
@@ -63,7 +63,7 @@ This is the **only** public repo for the project.
 | Charts       | Recharts |
 | Demo mode    | Client-side simulation on Vercel |
 | Local engine | Bun + Socket.io (not public) |
-| CI           | GitHub Actions — unit, `tsc`, Playwright |
+| CI           | GitHub Actions - unit, `tsc`, Playwright |
 | Package mgr  | Bun |
 
 ---
@@ -89,10 +89,10 @@ Vercel / Demo                         Local only
 | Check | How |
 |-------|-----|
 | Unit tests | Validation, simulation transitions, Scenario Builder presets |
-| Types | `ignoreBuildErrors` is **off** — `bun run typecheck` |
+| Types | `ignoreBuildErrors` is **off** - `bun run typecheck` |
 | E2E | Playwright: dashboard, Scenario Builder, 500 inject, partition |
 | CI | [GitHub Actions](https://github.com/devtechedge/chaos-simulator/actions) on every push to `main` |
-| Supply chain | Unused template packages removed; Dependabot weekly (**patch/minor only** — do not merge majors blindly) |
+| Supply chain | Unused template packages removed; Dependabot weekly (**patch/minor only** - do not merge majors blindly) |
 
 ```bash
 bun install
@@ -114,7 +114,7 @@ Details: **[SECURITY.md](SECURITY.md)**.
 
 ---
 
-## Quick Start (demo — same as Vercel)
+## Quick Start (demo - same as Vercel)
 
 ```bash
 bun install

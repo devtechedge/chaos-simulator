@@ -88,7 +88,7 @@ export default function Dashboard() {
   }, [soundOn])
 
   // ============================================================
-  // LOG EVENT PROCESSING — sound, toast, particles
+  // LOG EVENT PROCESSING - sound, toast, particles
   // ============================================================
   useEffect(() => {
     for (const entry of logs) {
@@ -516,7 +516,7 @@ export default function Dashboard() {
       {/* ===== FOOTER ===== */}
       <footer className="glass-panel border-t border-border/50 py-3 mt-auto relative z-10">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
-          <span className="font-medium">Chaos Simulator v2.0 — Client-Side Edition</span>
+          <span className="font-medium">Chaos Simulator v2.0 - Client-Side Edition</span>
           <span className="text-emerald-600 dark:text-emerald-500/70 font-medium">Simulation running locally</span>
         </div>
       </footer>

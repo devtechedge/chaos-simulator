@@ -337,7 +337,7 @@ export function ServiceTopology({ services, chaosEnabled }: Props) {
             exit={{ opacity: 0 }}
             className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-red-500/15 border border-red-500/30 px-3 py-1 text-[10px] font-bold text-red-500 backdrop-blur-sm"
           >
-            ACTIVE OUTAGE — SELF-HEALING IN PROGRESS
+            ACTIVE OUTAGE - SELF-HEALING IN PROGRESS
           </motion.div>
         )}
       </AnimatePresence>

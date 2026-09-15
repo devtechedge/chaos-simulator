@@ -1,4 +1,4 @@
-// SoundManager — Web Audio API based sound effects for chaos events.
+// SoundManager - Web Audio API based sound effects for chaos events.
 // Generates short synthesized tones without needing any audio files.
 
 type SoundType = 'critical' | 'warning' | 'resolved' | 'click' | 'alarm'

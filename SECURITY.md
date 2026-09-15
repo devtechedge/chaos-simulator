@@ -1,4 +1,4 @@
-# Security Assessment — Chaos Simulator
+# Security Assessment - Chaos Simulator
 
 **Date:** 2026-09-06  
 **Scope:** Auth, injection, XSS, dependency risk, CORS, Socket.io surface, secrets hygiene  
@@ -17,11 +17,11 @@
 | Dependency CVEs | **Reduced** | Unused packages dropped; remaining high-risk template deps gone |
 | Secrets in repo | **Low** | `.env*` gitignored; `.env.example` has no secrets |
 | CORS | **Medium (local engine)** | Engine defaults to `origin: '*'` |
-| Build config | **Hardened** | `ignoreBuildErrors` is **false** — type errors fail CI/build |
+| Build config | **Hardened** | `ignoreBuildErrors` is **false** - type errors fail CI/build |
 
-**Overall (public Vercel demo):** Low residual risk — browser-only simulation, no backend secrets, no auth boundary to break.
+**Overall (public Vercel demo):** Low residual risk - browser-only simulation, no backend secrets, no auth boundary to break.
 
-**Overall (local chaos-engine if bound to a public network):** High — unauthenticated control plane over services.
+**Overall (local chaos-engine if bound to a public network):** High - unauthenticated control plane over services.
 
 ---
 
@@ -72,7 +72,7 @@ Removed unused template packages (and their CVE surface):
 
 **Held:** `sharp` 0.34.x (Next 16 image pipeline; no untrusted uploads).
 
-**Engine:** `socket.io@4.8.3` — last audit was clean.
+**Engine:** `socket.io@4.8.3` - last audit was clean.
 
 ### How to re-audit
 
@@ -98,7 +98,7 @@ npm audit --omit=dev
 
 **Findings**
 - `.gitignore` excludes `.env`, `.env*.local`, logs.
-- `.env.example` documents optional `NEXT_PUBLIC_CHAOS_ENGINE_URL`, `CORS_ORIGIN`, `PORT` — no credentials.
+- `.env.example` documents optional `NEXT_PUBLIC_CHAOS_ENGINE_URL`, `CORS_ORIGIN`, `PORT` - no credentials.
 
 ---
 
@@ -109,7 +109,7 @@ npm audit --omit=dev
 | Dashboard `/` | None | Client-side simulation |
 | Engine `GET /api/telemetry` | None | Read-only simulation state (local) |
 | Engine `GET /health` | None | Health check |
-| Socket.io events (mutate) | **None** | Control plane — protect if exposed |
+| Socket.io events (mutate) | **None** | Control plane - protect if exposed |
 
 Placeholder `GET /api` “Hello, world!” route **removed**.
 

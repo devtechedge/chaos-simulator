@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chaos Simulator — Distributed Microservices Telemetry Dashboard",
+  title: "Chaos Simulator - Distributed Microservices Telemetry Dashboard",
   description:
     "Real-time chaos engineering simulation with self-healing microservices, animated topology, and live telemetry.",
   keywords: [

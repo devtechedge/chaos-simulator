@@ -201,7 +201,7 @@ export function useChaosEngine() {
               pushLog(
                 'CRITICAL',
                 target,
-                `HTTP 500 Internal Server Error — ${errorRate}% of requests failing. Service marked DOWN.`
+                `HTTP 500 Internal Server Error - ${errorRate}% of requests failing. Service marked DOWN.`
               )
               break
             }
@@ -232,7 +232,7 @@ export function useChaosEngine() {
               pushLog(
                 'CRITICAL',
                 target,
-                `Service CRASHED — process terminated unexpectedly. All traffic halted.`
+                `Service CRASHED - process terminated unexpectedly. All traffic halted.`
               )
               break
             }
@@ -248,7 +248,7 @@ export function useChaosEngine() {
               pushLog(
                 'CRITICAL',
                 target,
-                `MASSIVE NETWORK PARTITION — complete connectivity loss. Service unreachable.`
+                `MASSIVE NETWORK PARTITION - complete connectivity loss. Service unreachable.`
               )
               break
             }
@@ -354,7 +354,7 @@ export function useChaosEngine() {
       const scenarioId = uid()
       const timers: ReturnType<typeof setTimeout>[] = []
 
-      pushLog('WARN', 'ChaosEngine', `SCENARIO STARTED: "${name}" — ${steps.length} step(s) queued.`)
+      pushLog('WARN', 'ChaosEngine', `SCENARIO STARTED: "${name}" - ${steps.length} step(s) queued.`)
 
       let stepIndex = 0
       for (const step of steps) {
@@ -381,7 +381,7 @@ export function useChaosEngine() {
         pushLog(
           'INFO',
           'ChaosEngine',
-          `SCENARIO COMPLETE: "${name}" — all ${steps.length} step(s) executed.`
+          `SCENARIO COMPLETE: "${name}" - all ${steps.length} step(s) executed.`
         )
         setTimeout(() => setActiveScenario(null), 3000)
       }, totalDuration)
@@ -427,7 +427,7 @@ export function useChaosEngine() {
     pushLog(
       'WARN',
       'ChaosEngine',
-      `OPERATOR TRIGGERED: Massive Network Partition — all services affected!`
+      `OPERATOR TRIGGERED: Massive Network Partition - all services affected!`
     )
     for (const cfg of SERVICES_CONFIG) {
       injectAnomaly(cfg.name, 'NETWORK_PARTITION', 'manual')
@@ -444,7 +444,7 @@ export function useChaosEngine() {
   }, [pushLog])
 
   // ============================================================
-  // INTERVALS — Start/Stop lifecycle
+  // INTERVALS - Start/Stop lifecycle
   // ============================================================
 
   useEffect(() => {
