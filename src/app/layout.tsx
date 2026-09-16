@@ -27,11 +27,13 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
     url: SITE_URL,
     type: "website",
+    images: [{ url: 'https://chaos-simulation.vercel.app/og.png', width: 1200, height: 630, alt: 'Chaos Simulator - Distributed Microservices Telemetry Dashboard' }],
   },
   twitter: {
-    card: "summary",
+    card: 'summary_large_image',
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
+    images: ['https://chaos-simulation.vercel.app/og.png'],
   },
   keywords: [
     "chaos engineering",
