@@ -13,10 +13,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const PAGE_TITLE = "Chaos Simulator - Distributed Microservices Telemetry Dashboard";
+const PAGE_DESCRIPTION =
+  "Real-time chaos engineering simulation with self-healing microservices, animated topology, and live telemetry.";
+const SITE_URL = "https://chaos-simulation.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Chaos Simulator - Distributed Microservices Telemetry Dashboard",
-  description:
-    "Real-time chaos engineering simulation with self-healing microservices, animated topology, and live telemetry.",
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  // Shared links (LinkedIn, Slack, email) render a bare URL without these.
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: SITE_URL,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+  },
   keywords: [
     "chaos engineering",
     "microservices",
