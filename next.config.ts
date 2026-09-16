@@ -11,14 +11,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   skipTrailingSlashRedirect: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
-  async rewrites() {
-    return [
-      {
-        source: "/socket.io/:path*",
-        destination: "http://localhost:3030/socket.io/:path*",
-      },
-    ];
-  },
+  // No rewrites. The dashboard is a client-side simulation and ships no
+  // backend. An earlier revision proxied /socket.io/* to a local Bun engine
+  // on :3030; Vercel's serverless runtime cannot host a long-lived socket
+  // server, so that rule was dead config and has been removed.
 
   async headers() {
     return [
