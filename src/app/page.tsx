@@ -141,16 +141,18 @@ export default function Dashboard() {
   const getService = (name: string) => services.find((s) => s.name === name)
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
-      {/* Background grid + ambient glow */}
-      <div className="fixed inset-0 chaos-grid-bg pointer-events-none" />
-      <div className="dark:block hidden">
-        <div className="fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-orange-500/[0.04] blur-[120px] animate-drift pointer-events-none" />
-        <div className="fixed bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-red-500/[0.03] blur-[100px] animate-drift pointer-events-none" />
-      </div>
-      <div className="dark:hidden block">
-        <div className="fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-orange-200/30 blur-[100px] animate-drift pointer-events-none" />
-        <div className="fixed bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-red-200/20 blur-[80px] animate-drift pointer-events-none" />
+    <div className="relative min-h-screen min-w-0 bg-background text-foreground flex flex-col overflow-x-clip">
+      {/* Background grid + ambient glow (clipped so blurs never expand scrollWidth) */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
+        <div className="absolute inset-0 chaos-grid-bg" />
+        <div className="dark:block hidden">
+          <div className="absolute top-0 left-1/4 w-[min(500px,100%)] h-[500px] rounded-full bg-orange-500/[0.04] blur-[120px] animate-drift" />
+          <div className="absolute bottom-0 right-1/4 w-[min(400px,100%)] h-[400px] rounded-full bg-red-500/[0.03] blur-[100px] animate-drift" />
+        </div>
+        <div className="dark:hidden block">
+          <div className="absolute top-0 left-1/4 w-[min(500px,100%)] h-[500px] rounded-full bg-orange-200/30 blur-[100px] animate-drift" />
+          <div className="absolute bottom-0 right-1/4 w-[min(400px,100%)] h-[400px] rounded-full bg-red-200/20 blur-[80px] animate-drift" />
+        </div>
       </div>
 
       {/* Particle overlay */}
@@ -161,37 +163,38 @@ export default function Dashboard() {
 
       {/* ===== HEADER ===== */}
       <header className="glass-panel border-b border-border/50 sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-3 flex min-w-0 items-center justify-between gap-2 sm:gap-3">
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+            className="flex min-w-0 items-center gap-2 sm:gap-3"
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <motion.div
                 animate={{ rotate: [0, -5, 5, 0], scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="size-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center animate-aura shadow-lg shadow-orange-500/20"
+                className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center animate-aura shadow-lg shadow-orange-500/20"
               >
-                <Flame className="size-5 text-white" />
+                <Flame className="size-4 sm:size-5 text-white" />
               </motion.div>
             </div>
-            <div>
-              <h1 className="text-sm sm:text-base font-bold tracking-tight text-foreground">
+            <div className="min-w-0">
+              <h1 className="truncate text-sm sm:text-base font-bold tracking-tight text-foreground">
                 Chaos Simulator
               </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
+              <p className="hidden sm:block text-[10px] sm:text-xs text-muted-foreground truncate">
                 Distributed Microservices · Self-Healing Telemetry
               </p>
             </div>
           </motion.div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-3">
             {/* Live indicator */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+              className="flex items-center gap-1.5 sm:gap-2 px-1.5 sm:px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+              title="Live"
             >
               <motion.div
                 animate={{ opacity: [1, 0.5, 1] }}
@@ -200,7 +203,7 @@ export default function Dashboard() {
               >
                 <Activity className="size-3.5" />
               </motion.div>
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
+              <span className="hidden sm:inline text-[11px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
                 LIVE
               </span>
             </motion.div>
@@ -208,20 +211,20 @@ export default function Dashboard() {
             <Separator orientation="vertical" className="h-5 hidden sm:block" />
 
             {/* Chaos toggle */}
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs" title={chaosEnabled ? 'ARMED' : 'DISARMED'}>
               <span className="text-muted-foreground hidden md:inline text-[11px] font-medium">Engine</span>
               <Switch checked={chaosEnabled} onCheckedChange={handleToggleChaos} />
               <motion.span
                 key={chaosEnabled ? 'armed' : 'disarmed'}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className={`text-[11px] font-bold tracking-wide ${chaosEnabled ? 'text-orange-500' : 'text-muted-foreground'}`}
+                className={`hidden sm:inline text-[11px] font-bold tracking-wide ${chaosEnabled ? 'text-orange-500' : 'text-muted-foreground'}`}
               >
                 {chaosEnabled ? 'ARMED' : 'DISARMED'}
               </motion.span>
             </div>
 
-            <Separator orientation="vertical" className="h-5" />
+            <Separator orientation="vertical" className="h-5 hidden sm:block" />
 
             {/* Theme toggle */}
             {mounted && (
@@ -252,11 +255,10 @@ export default function Dashboard() {
               size="sm"
               data-testid="open-scenario-builder"
               onClick={() => setScenarioOpen(true)}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white gap-1.5 shadow-lg shadow-orange-500/20"
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white gap-1.5 shadow-lg shadow-orange-500/20 px-2 sm:px-3"
             >
               <Sparkles className="size-3.5" />
               <span className="hidden sm:inline text-xs font-medium">Scenario</span>
-              <span className="sm:hidden text-xs font-medium">Builder</span>
             </Button>
           </div>
         </div>
