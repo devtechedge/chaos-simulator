@@ -68,3 +68,7 @@ download/
 skills/
 worklog.md
 mini-service-*.log
+
+# This project installs with Bun. Dependabot prefers an npm lockfile over
+# bun.lock, so committing one would make it report versions we do not ship.
+package-lock.json

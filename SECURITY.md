@@ -96,8 +96,15 @@ so their CVE surface is gone from this repo.
 
 ```bash
 bun install
-npm audit --omit=dev
+bun audit
 ```
+
+The repository is installed and built with Bun only. There is no `package-lock.json`:
+Dependabot reads the npm lockfile in preference to `bun.lock`, so a committed npm lock
+made it report versions this project does not actually ship. Removing it also means npm can
+no longer be used to resolve this tree, which is deliberate: `@rainbow-me/rainbowkit` peers on
+`wagmi ^2.9.0` while the project is on wagmi 3, so `npm install` fails with ERESOLVE.
+Bun is what CI uses, and `bun install --frozen-lockfile` is the reproducibility guarantee.
 
 ---
 
