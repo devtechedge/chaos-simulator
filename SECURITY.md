@@ -87,7 +87,7 @@ Removed unused template packages (and their CVE surface):
 - `@mdxeditor/editor`, `react-syntax-highlighter`, `js-yaml` (transitive)
 - `z-ai-web-dev-sdk`, `next-intl`, `zustand`, `zod` (unused), `@tanstack/*`, `@dnd-kit/*`, `cmdk`, `vaul`, `sonner`, `react-hook-form`, `react-markdown`, `react-day-picker`, `uuid`, and unused Radix/shadcn widgets
 
-**Held:** `sharp` 0.34.x (Next 16 image pipeline; no untrusted uploads).
+**Held (until 10 Oct 2026):** `sharp` 0.34.x (Next 16 image pipeline; no untrusted uploads). Lifted once Next 16.4.0 moved to sharp 0.35.x, so `sharp` is now `^0.35.5` and the hold is closed.
 
 **Removed with the socket layer:** `socket.io` and `socket.io-client` are no longer dependencies,
 so their CVE surface is gone from this repo.
